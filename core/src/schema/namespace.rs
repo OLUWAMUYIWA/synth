@@ -5,11 +5,6 @@ use serde_json::{value::Value, Map};
 use std::collections::BTreeMap;
 use std::convert::AsRef;
 use std::{default::Default, iter::FromIterator};
-
-
-
-
-
 use super::inference::MergeStrategy;
 use super::{suggest_closest, ArrayContent, Content, FieldRef, Find, Name};
 use crate::compile::{Compile, Compiler};
@@ -336,13 +331,13 @@ mod tests {
 
     //helper method for checking sorted dependencies
     fn check_dep(list: &[Name], ns: &Namespace) -> bool {
-        let curr_name= match list.last() {
+        let (last, list)= match list.split_last() {
             Some(n) => n,
             None=> return true
         };
-        let c = ns.get_collection(&curr_name).unwrap();
+        let c = ns.get_collection(&last).unwrap();
         if let Content::SameAs(same) = c {
-            list[..list.len()-1].contains(same.ref_.collection()) && check_dep(&list[..list.len()-1], ns)
+            list.contains(same.ref_.collection()) && check_dep(&list[..], ns)
         } else {
             true
         }
